@@ -201,4 +201,4 @@ class AssignResult(util_mixins.NiceRepr):
             [self.max_overlaps.new_ones(len(gt_labels)), self.max_overlaps])
 
         if self.labels is not None:
-            self.labels = torch.cat([gt_labels, self.labels])
+            self.labels = torch.cat([gt_labels, self.labels.int()])

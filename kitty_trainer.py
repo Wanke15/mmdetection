@@ -64,7 +64,7 @@ class KittiTinyDataset(CustomDataset):
 
 
 from mmcv import Config
-cfg = Config.fromfile('./configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py')
+cfg = Config.fromfile('./configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py')
 
 from mmdet.apis import set_random_seed, inference_detector, show_result_pyplot
 
@@ -91,7 +91,7 @@ cfg.data.val.img_prefix = 'training/image_2'
 cfg.model.roi_head.bbox_head.num_classes = 3
 # We can still use the pre-trained Mask RCNN model though we do not need to
 # use the mask branch
-cfg.load_from = 'checkpoints/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth'
+cfg.load_from = 'checkpoints/mask_rcnn_r50_caffe_fpn_mstrain-poly_3x_coco_bbox_mAP-0.408__segm_mAP-0.37_20200504_163245-42aa3d00.pth'
 
 # Set up working dir to save files and logs.
 cfg.work_dir = './tutorial_exps'
@@ -124,23 +124,29 @@ from mmdet.datasets import build_dataset
 from mmdet.models import build_detector
 from mmdet.apis import train_detector
 
+if __name__ == '__main__':
+    # Build dataset
+    datasets = [build_dataset(cfg.data.train)]
 
-# Build dataset
-datasets = [build_dataset(cfg.data.train)]
+    # Build the detector
+    model = build_detector(
+        cfg.model, train_cfg=cfg.train_cfg, test_cfg=cfg.test_cfg)
+    # Add an attribute for visualization convenience
+    model.CLASSES = datasets[0].CLASSES
 
-# Build the detector
-model = build_detector(
-    cfg.model, train_cfg=cfg.train_cfg, test_cfg=cfg.test_cfg)
-# Add an attribute for visualization convenience
-model.CLASSES = datasets[0].CLASSES
-
-# Create work_dir
-mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
-train_detector(model, datasets, cfg, distributed=False, validate=True)
+    # Create work_dir
+    mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
+    train_detector(model, datasets, cfg, distributed=False, validate=True)
 
 
-img = mmcv.imread('kitti_tiny/training/image_2/000068.jpeg')
+    img = mmcv.imread('kitti_tiny/training/image_2/000068.jpeg')
 
-model.cfg = cfg
-result = inference_detector(model, img)
-show_result_pyplot(model, img, result)
+    model.cfg = cfg
+    result = inference_detector(model, img)
+    show_result_pyplot(model, img, result)
+
+    img = mmcv.imread('kitti_tiny/training/image_2/000052.jpeg')
+
+    model.cfg = cfg
+    result = inference_detector(model, img)
+    show_result_pyplot(model, img, result)
