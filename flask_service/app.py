@@ -70,7 +70,9 @@ def index():
 
         return render_template("index.html", source_img=source_img_url, res_img=result_img_url)
     else:
-        return render_template("index.html")
+        return render_template("index.html",
+                               source_img="/uploads/4c510a77-1777-48c7-878a-0ef93c2438d8.png",
+                               res_img="/results/4c510a77-1777-48c7-878a-0ef93c2438d8.png")
 
 
 if __name__ == "__main__":
